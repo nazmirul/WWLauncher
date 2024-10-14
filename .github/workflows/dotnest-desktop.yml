@@ -1,0 +1,51 @@
+name: .NET Framework Desktop
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Framework Developer Pack
+    - name: Install .NET Framework
+      run: |
+        # Use the correct download link for the .NET Framework 4.7 Developer Pack
+        Invoke-WebRequest -Uri "https://dotnet.microsoft.com/download/dotnet-framework/net47" -OutFile "dotnetfx471_full_x86_x64.exe"
+        Start-Process -FilePath "dotnetfx471_full_x86_x64.exe" -ArgumentList "/q /norestart" -NoNewWindow -Wait
+
+    # Restore the application
+    - name: Restore the application
+      run: msbuild Project1.sln /t:Restore
+
+    # Build the application
+    - name: Build the application
+      run: msbuild Project1.sln /p:Configuration=Release
+
+    # Run tests if you have them
+    - name: Execute unit tests
+      run: |
+        # Assuming you have a test project
+        dotnet test your-test-project-path
+
+    # Sign the application if needed
+    - name: Sign the application
+      run: |
+        # Include your signing logic here if applicable
+        # e.g., using signtool.exe or other tools
+
+    # Upload the build artifacts
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: MSIX Package
+        path: path\to\your\output\directory
