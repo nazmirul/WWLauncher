@@ -16,12 +16,14 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Install the .NET Framework Developer Pack
-    - name: Install .NET Framework
+    # Check if .NET Framework 4.7 is installed, if not, enable it
+    - name: Enable .NET Framework 4.7
       run: |
-        # Use the correct download link for the .NET Framework 4.7 Developer Pack
-        Invoke-WebRequest -Uri "https://dotnet.microsoft.com/download/dotnet-framework/net47" -OutFile "dotnetfx471_full_x86_x64.exe"
-        Start-Process -FilePath "dotnetfx471_full_x86_x64.exe" -ArgumentList "/q /norestart" -NoNewWindow -Wait
+        # Check if .NET Framework 4.7 is installed
+        $feature = Get-WindowsFeature -Name NET-Framework-47-Features
+        if (-not $feature.Installed) {
+            Install-WindowsFeature -Name NET-Framework-47-Features -IncludeManagementTools
+        }
 
     # Restore the application
     - name: Restore the application
